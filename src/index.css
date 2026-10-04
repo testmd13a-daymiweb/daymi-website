@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+@import "@fontsource/hanken-grotesk/400.css";
+@import "@fontsource/hanken-grotesk/500.css";
+@import "@fontsource/hanken-grotesk/600.css";
+@import "@fontsource/hanken-grotesk/700.css";
+@import "@fontsource/hanken-grotesk/800.css";
+@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/vazirmatn/400.css";
+@import "@fontsource/vazirmatn/500.css";
+@import "@fontsource/vazirmatn/600.css";
+
+@theme {
+  --color-black: #000000;
+  --color-ink: #21130f;
+  --color-graphite: #333333;
+  --color-gray-mid: #646464;
+  --color-gray-light: #a7a7a7;
+
+  --color-white: #f9f9f9;
+  --color-cream: #f0dfcb;
+  --color-sand: #d9c3ab;
+
+  --color-orange: #e85002;
+  --color-orange-hot: #f87f23;
+  --color-orange-core: #f16001;
+  --color-red-deep: #c10801;
+  --color-red: #cc0a0d;
+
+  --font-sans: "Hanken Grotesk", "Vazirmatn", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-fa: "Vazirmatn", "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: auto;
+  background: #000;
+}
+
+body {
+  background: #000;
+  color: var(--color-white);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-orange);
+  color: #000;
+}
+
+/* Persian / mixed-direction text */
+[dir="auto"],
+.fa-text {
+  font-family: var(--font-fa);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--color-orange-hot), var(--color-red-deep));
+  border-radius: 999px;
+}
+
+/* Film grain overlay */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Glass card */
+.glass {
+  background: rgba(33, 19, 15, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(248, 127, 35, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glow-edge {
+  position: relative;
+}
+.glow-edge::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -1px;
+  height: 40%;
+  background: radial-gradient(60% 100% at 50% 100%, rgba(248, 127, 35, 0.55), transparent 80%);
+  filter: blur(14px);
+  opacity: 0.55;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.glow-edge:hover::after {
+  opacity: 1;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.grad-fire {
+  background: linear-gradient(180deg, #000000 0%, #c10801 38%, #f16001 72%, #d9c3ab 100%);
+}
+
+.grad-glow {
+  background: radial-gradient(
+    60% 60% at 50% 100%,
+    #f87f23 0%,
+    #e85002 30%,
+    rgba(193, 8, 1, 0.55) 55%,
+    transparent 80%
+  );
+}
+
+/* Focus ring */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Real episode cover treatment */
+.episode-cover-treatment {
+  background:
+    radial-gradient(90% 90% at 22% 15%, rgba(248, 127, 35, 0.7), transparent 52%),
+    radial-gradient(75% 90% at 82% 90%, rgba(193, 8, 1, 0.74), transparent 58%),
+    linear-gradient(125deg, rgba(0, 0, 0, 0.94) 0%, rgba(33, 19, 15, 0.82) 38%, rgba(0, 0, 0, 0.7) 100%);
+  mix-blend-mode: multiply;
+}
+
+.episode-cover-noise {
+  background-image:
+    radial-gradient(circle at 17% 28%, rgba(248, 127, 35, 0.8) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 72% 64%, rgba(255, 255, 255, 0.28) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 48% 80%, rgba(193, 8, 1, 0.8) 0 1px, transparent 1.5px);
+  background-size: 17px 19px, 23px 29px, 31px 27px;
+  mix-blend-mode: screen;
+  animation: episodeNoise 9s linear infinite;
+}
+
+@keyframes episodeNoise {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  50% { background-position: 38px -26px, -31px 21px, 24px 34px; }
+  100% { background-position: 0 0, 0 0, 0 0; }
+}
+
+@media (hover: none) {
+  .episode-cover-treatment { opacity: 0.42; }
+  .episode-cover-noise { opacity: 0.22; }
+}
+
+
+/* Daymi hero orb speed control */
+.orb-speed-slider {
+  appearance: none;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(232,80,2,.32), rgba(248,127,35,.9));
+  cursor: ew-resize;
+  outline: none;
+}
+.orb-speed-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,223,203,.85);
+  background: #F87F23;
+  box-shadow: 0 0 14px rgba(248,127,35,.55);
+}
+.orb-speed-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,223,203,.85);
+  background: #F87F23;
+  box-shadow: 0 0 14px rgba(248,127,35,.55);
+}
+.orb-speed-slider:focus-visible {
+  box-shadow: 0 0 0 2px rgba(248,127,35,.22);
+}
+@media (max-width: 767px) {
+  .orb-speed-slider::-webkit-slider-thumb { width: 18px; height: 18px; }
+  .orb-speed-slider::-moz-range-thumb { width: 18px; height: 18px; }
+}
