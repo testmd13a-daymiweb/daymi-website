@@ -49,7 +49,26 @@ export const episodes: Episode[] = [
     cover: "/episodes/covers/last-seconds-of-history.webp",
     audio: "/episodes/audio/last-seconds-of-history.mp3",
   },
+    {
+    id: "ep-05",
+    title: "White Gold",
+    topic: "History · Money",
+    duration: "7 min 13 sec",
+    summary: "How did a simple seasoning on your kitchen table once fund empires, spark revolutions, and hold the power of life and death?",
+    cover: "/episodes/covers/White-Gold.webp",
+    audio: "/episodes/audio/White-Gold.mp3",
+  },
+    {
+    id: "ep-06",
+    title: "Who Ruled the Four-Year Timer?",
+    topic: "Politics · Psychology",
+    duration: "8 min 39 sec",
+    summary: "What if the most powerful number in human history isn't a currency, but a hidden clock on our calendars?",
+    cover: "/episodes/covers/Who-Ruled-the-Four-Year-Timer.png",
+    audio: "/episodes/audio/Who-Ruled-the-Four-Year-Timer.mp3",
+  },
 ];
+
 
 export const sampleTopics: string[] = [
   "Why we get déjà vu",
