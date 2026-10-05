@@ -67,6 +67,15 @@ export const episodes: Episode[] = [
     cover: "/episodes/covers/Who-Ruled-the-Four-Year-Timer.png",
     audio: "/episodes/audio/Who-Ruled-the-Four-Year-Timer.mp3",
   },
+  {
+    id: "ep-07",
+    title: "Fermi Paradox: Where Is Everybody?",
+    topic: "Space · Science",
+    duration: "7 min 27 sec",
+    summary: "In a universe filled with billions of stars and planets, why haven't we found anyone else? A curious journey into the Fermi paradox and the silence of the cosmos.",
+    cover: "/episodes/covers/fermi-paradox.png",
+    audio: "/episodes/audio/fermi-paradox.mp3",
+  },
 ];
 
 
