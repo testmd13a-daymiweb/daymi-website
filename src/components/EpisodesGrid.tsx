@@ -17,11 +17,6 @@ function CoverArt({ ep, playing, onPlay }: { ep: Episode; playing: boolean; onPl
       <div className="episode-cover-noise absolute inset-0 opacity-75 transition-opacity duration-500 group-hover/cover:opacity-0" />
 
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3.5 sm:p-4">
-        <div className="min-w-0">
-          <span className="inline-flex max-w-full rounded-full border border-orange-hot/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-orange-hot backdrop-blur-md">
-            {ep.topic}
-          </span>
-        </div>
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onPlay(); }}
