@@ -106,7 +106,7 @@ export default function CuriosityOrb({
     window.addEventListener("resize", resize);
 
     function onPointerMove(e: PointerEvent) {
-      if (!canvas) return;
+      if (!canvas || e.pointerType === "touch") return;
       const rect = canvas.getBoundingClientRect();
       const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1;

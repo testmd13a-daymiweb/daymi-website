@@ -51,7 +51,7 @@ export default function Hero() {
   }
 
   return (
-    <section id="top" ref={ref} className="relative h-[100svh] min-h-[640px] w-full overflow-hidden bg-black">
+    <section id="top" ref={ref} className="hero-section relative min-h-[100svh] xl:h-[100svh] xl:min-h-[740px] w-full overflow-hidden bg-black">
       <audio ref={audioRef} preload="metadata" src={latest.audio} aria-hidden="true" />
       {/* fire gradient rising from bottom */}
       <div className="pointer-events-none absolute inset-0 grad-fire opacity-80" />
@@ -94,13 +94,13 @@ export default function Hero() {
         [ Persian audio · English site ]
       </div>
 
-      <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative z-10 flex h-full flex-col justify-end px-5 pb-28 sm:px-10 sm:pb-32">
+      <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative z-10 flex min-h-[max(640px,100svh)] flex-col justify-end px-5 pb-24 pt-40 sm:px-10 sm:pb-32 xl:h-full">
         <h1 className="text-balance max-w-4xl font-sans text-[clamp(44px,9vw,152px)] font-extrabold leading-[0.95] tracking-[-0.03em] text-white">
           Curiosity that
           <br />
           won't let go.
         </h1>
-        <p className="mt-6 max-w-md text-balance text-lg text-gray-light">
+        <p className="mt-6 max-w-md text-balance text-base sm:text-lg text-gray-light">
           Daymi is a Persian-language podcast about the unexpected — the questions
           nobody asked, answered anyway. The site is in English; the episodes are in Persian.
         </p>
@@ -126,7 +126,7 @@ export default function Hero() {
       </motion.div>
 
       {/* Hero controls — locked to the exact same right edge as the mini player. */}
-      <div className="absolute bottom-24 right-5 z-20 hidden w-72 flex-col gap-3 sm:right-8 sm:flex">
+      <div className="absolute bottom-24 right-5 z-20 hidden w-72 flex-col gap-3 sm:right-8 xl:flex">
         {/* Orb speed control sits directly above the player with a fixed, consistent gap. */}
         <div className="w-full rounded-2xl border border-orange-hot/20 bg-black/35 px-4 py-3 backdrop-blur-md">
           <div className="mb-2 flex items-center justify-between gap-3">

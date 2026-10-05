@@ -1,7 +1,9 @@
+import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 import { englishEpisodeFallback } from "../data/englishEpisodes";
+import { useOverlay } from "../utils/useOverlay";
 import CuriosityOrb from "./CuriosityOrb";
 
 type MapEpisode = { id: string; title: string };
@@ -47,6 +49,8 @@ export default function TopicConstellation() {
     return () => window.removeEventListener("keydown", close);
   }, [selected]);
 
+  useOverlay(!!selected, () => setSelected(null));
+
   const nodes = useMemo(() => episodes.map((episode, index) => ({
     ...episode, x: POSITIONS[index][0] * size.width / 100,
     y: POSITIONS[index][1] * size.height / 100,
@@ -73,7 +77,7 @@ export default function TopicConstellation() {
         const rect = event.currentTarget.getBoundingClientRect();
         const nearest = nodes.map(node => ({ node, distance: Math.hypot(event.clientX - rect.left - node.x, event.clientY - rect.top - node.y) })).sort((a,b) => a.distance-b.distance)[0];
         setActiveId(nearest && nearest.distance < 140 ? nearest.node.id : null);
-      }} onPointerLeave={() => setActiveId(null)} className="relative mx-auto mt-10 hidden h-[540px] max-w-6xl md:block">
+      }} onPointerLeave={() => setActiveId(null)} className="relative mx-auto mt-10 hidden h-[540px] max-w-6xl lg:block">
         <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox={`0 0 ${size.width} ${size.height}`} aria-hidden="true">
           {active && <g key={active.id}>
             <motion.line x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke="#F87F23" strokeWidth={1.2} strokeOpacity={0.5} strokeLinecap="round" initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
@@ -90,15 +94,15 @@ export default function TopicConstellation() {
           </motion.button>
         </div>)}
       </div>
-      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 md:hidden">
+      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:hidden">
         {episodes.map(episode => <button key={episode.id} onClick={() => setSelected(episode)} className="glass rounded-2xl px-4 py-3 text-left text-sm text-cream">{episode.title}</button>)}
       </div>
-      <AnimatePresence>{selected && <motion.div role="dialog" aria-modal="true" aria-label={selected.title} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[95] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm" onClick={() => setSelected(null)}>
-        <div onClick={event => event.stopPropagation()} className="glass relative w-full max-w-3xl rounded-3xl p-4 sm:p-6">
-          <div className="mb-4 flex items-center justify-between gap-4"><h3 className="text-lg font-bold text-cream">{selected.title}</h3><button autoFocus aria-label="Close episode" onClick={() => setSelected(null)} className="rounded-full border border-white/20 p-2"><X size={18} /></button></div>
+      {createPortal(<AnimatePresence>{selected && <motion.div role="dialog" aria-modal="true" aria-label={selected.title} data-lenis-prevent initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[95] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm" onClick={() => setSelected(null)}>
+        <div onClick={event => event.stopPropagation()} className="glass relative max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-3xl rounded-3xl p-4 sm:p-6">
+          <div className="mb-4 flex items-center justify-between gap-4"><h3 className="text-lg font-bold text-cream">{selected.title}</h3><button autoFocus aria-label="Close episode" onClick={() => setSelected(null)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20"><X size={18} /></button></div>
           <iframe src={`https://www.youtube.com/embed/${selected.id}?autoplay=1`} title={selected.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" className="aspect-video min-h-[200px] w-full rounded-2xl" />
         </div>
-      </motion.div>}</AnimatePresence>
+      </motion.div>}</AnimatePresence>, document.body)}
     </section>
   );
 }

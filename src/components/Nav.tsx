@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Menu, X, Play } from "lucide-react";
+import { useOverlay } from "../utils/useOverlay";
 import MagneticButton from "./MagneticButton";
 import { LISTEN_GROUPS } from "../data/platforms";
 
@@ -15,6 +16,15 @@ export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [listenOpen, setListenOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useOverlay(mobileOpen, () => setMobileOpen(false));
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const closeOnDesktop = () => { if (desktop.matches) setMobileOpen(false); };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
 
   const listenRef = useRef<HTMLDivElement>(null);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -66,7 +76,7 @@ export default function Nav() {
             paddingBottom: scrolled ? 8 : 10,
           }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="glass nav-original relative flex w-full max-w-3xl items-center justify-between gap-4 rounded-full"
+          className="glass nav-original relative flex w-full max-w-3xl items-center justify-between gap-2 rounded-full sm:gap-4"
         >
           <a href="#top" className="flex items-center gap-2 pl-2" data-cursor="Home">
             <span className="font-sans text-lg font-extrabold tracking-tight text-white">DAYMI</span>
@@ -91,7 +101,7 @@ export default function Nav() {
 
           <div
             ref={listenRef}
-            className="relative"
+            className="relative ml-auto shrink-0"
             onPointerEnter={() => { clearTimeout(leaveTimer.current); resetListenIdle(); }}
             onPointerMove={resetListenIdle}
             onPointerDown={resetListenIdle}
@@ -123,7 +133,7 @@ export default function Nav() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.96 }}
                   transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                  className="glass absolute right-0 top-full mt-3 max-h-[calc(100dvh-110px)] w-64 overflow-y-auto rounded-2xl p-2"
+                  data-lenis-prevent className="listen-dropdown glass absolute right-0 top-full mt-3 max-h-[calc(100dvh-110px)] w-[min(16rem,calc(100vw-4rem))] overflow-y-auto overscroll-contain rounded-2xl p-2"
                 >
                   {LISTEN_GROUPS.map((group) => (
                     <div key={group.language} className="py-2 first:border-b first:border-white/10">
@@ -150,8 +160,8 @@ export default function Nav() {
           </div>
 
           <button
-            className="ml-1 flex h-9 w-9 items-center justify-center rounded-full text-cream md:hidden"
-            onClick={() => setMobileOpen(true)}
+            className="ml-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-cream md:hidden"
+            onClick={() => { setListenOpen(false); setMobileOpen(true); }}
             aria-label="Open menu"
           >
             <Menu size={20} />
@@ -165,19 +175,20 @@ export default function Nav() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[90] flex flex-col bg-black/95 backdrop-blur-xl md:hidden"
+            role="dialog" aria-modal="true" aria-label="Navigation menu" data-lenis-prevent className="fixed inset-0 z-[90] flex flex-col bg-black/95 backdrop-blur-xl md:hidden"
           >
-            <div className="flex items-center justify-between p-6">
+            <div className="flex shrink-0 items-center justify-between p-4 sm:p-6">
               <span className="text-lg font-extrabold tracking-tight">DAYMI</span>
               <button
+                autoFocus
                 onClick={() => setMobileOpen(false)}
                 aria-label="Close menu"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10"
               >
                 <X size={20} />
               </button>
             </div>
-            <div className="flex flex-1 flex-col items-start justify-center gap-6 overflow-y-auto px-8 py-6">
+            <div className="flex min-h-0 flex-1 flex-col items-start gap-5 overflow-y-auto overscroll-contain px-6 py-6 sm:px-8">
               {LINKS.map((l, i) => (
                 <motion.a
                   key={l.href}
@@ -186,7 +197,7 @@ export default function Nav() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.06 }}
-                  className="text-4xl font-semibold tracking-tight text-white"
+                  className="text-3xl font-semibold sm:text-4xl tracking-tight text-white"
                 >
                   {l.label}
                 </motion.a>

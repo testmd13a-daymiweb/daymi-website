@@ -4,22 +4,12 @@ import { motion } from "framer-motion";
 import { Send } from "lucide-react";
 import MagneticButton from "./MagneticButton";
 
-type Status = "idle" | "loading" | "success" | "error";
-
 export default function SuggestTopic() {
-  const [status, setStatus] = useState<Status>("idle");
   const [value, setValue] = useState("");
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!value.trim()) return;
-    setStatus("loading");
-    // TODO: [FILL IN] Wire this up to a real endpoint (email / Telegram / form service).
-    window.setTimeout(() => {
-      const ok = true;
-      setStatus(ok ? "success" : "error");
-      if (ok) setValue("");
-    }, 900);
+
   }
 
   return (
@@ -61,25 +51,17 @@ export default function SuggestTopic() {
           />
           <MagneticButton
             as="button"
+            disabled
             cursorLabel="Send"
-            className="w-full shrink-0 bg-gradient-to-r from-orange-core to-orange-hot text-black shadow-[0_0_30px_rgba(248,127,35,0.45)] sm:w-auto"
+            className="w-full shrink-0 bg-gradient-to-r from-orange-core to-orange-hot text-black shadow-[0_0_30px_rgba(248,127,35,0.45)] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             <Send size={15} />
             Send it to Daymi
           </MagneticButton>
         </form>
 
-        <div className="mt-4 h-6">
-          {status === "loading" && <p className="text-sm text-gray-mid">Sending…</p>}
-          {status === "success" && (
-            <p className="text-sm text-orange-hot">Got it. If it's stubborn enough, we'll get to it.</p>
-          )}
-          {status === "error" && (
-            <p className="text-sm text-red">That didn't send. Check your connection and try again.</p>
-          )}
-        </div>
-        <p className="text-xs text-gray-mid">
-          [FILL IN] Connect to a real email, Telegram bot, or form endpoint.
+        <p className="mt-4 text-sm text-gray-light" role="status">
+          Topic submissions are coming soon. This form is not connected yet.
         </p>
       </div>
     </section>

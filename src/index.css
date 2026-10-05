@@ -230,3 +230,14 @@ textarea:focus-visible,
   text-shadow: 0 0 14px rgba(248, 127, 35, 0.35);
 }
 .nav-original > a span { transition: color 180ms ease, text-shadow 180ms ease; }
+
+/* Small phones keep full touch targets and a dropdown inside the screen. */
+@media (max-width: 639px) {
+  .nav-original { padding-left: 10px !important; padding-right: 10px !important; }
+  .nav-original > div > button { padding-left: 18px; padding-right: 18px; }
+  .listen-dropdown { position: fixed; top: 94px; left: 24px; right: 24px; width: auto; margin-top: 0; }
+}
+section[id] { scroll-margin-top: 100px; }
+@media (prefers-reduced-motion: reduce) {
+  .episode-cover-noise { animation: none; }
+}

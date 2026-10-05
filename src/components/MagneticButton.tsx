@@ -11,6 +11,7 @@ type MagneticButtonProps = {
   cursorLabel?: string;
   target?: string;
   rel?: string;
+  disabled?: boolean;
 };
 
 export default function MagneticButton({
@@ -22,6 +23,7 @@ export default function MagneticButton({
   cursorLabel,
   target,
   rel,
+  disabled,
 }: MagneticButtonProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -29,6 +31,7 @@ export default function MagneticButton({
   const sy = useSpring(y, { stiffness: 150, damping: 15, mass: 0.4 });
 
   function handleMove(e: MouseEvent<HTMLElement>) {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const relX = e.clientX - rect.left - rect.width / 2;
     const relY = e.clientY - rect.top - rect.height / 2;
@@ -48,6 +51,7 @@ export default function MagneticButton({
       href={href}
       target={target}
       rel={rel}
+      disabled={disabled}
       onClick={onClick}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}

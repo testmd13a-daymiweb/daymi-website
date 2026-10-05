@@ -1,6 +1,8 @@
+import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, X, Clock, Volume2 } from "lucide-react";
+import { useOverlay } from "../utils/useOverlay";
 import GlassCard from "./GlassCard";
 import { episodes, type Episode } from "../data/episodes";
 
@@ -47,7 +49,7 @@ function EpisodeCard({ ep, playingId, onPlay, onOpen }: { ep: Episode; playingId
             </span>
             {ep.featured && <span className="rounded-full bg-orange-hot/20 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-orange-hot">Latest</span>}
           </div>
-          <bdi dir="auto" title={ep.title} className={`mt-3 block h-12 w-full shrink-0 line-clamp-2 font-sans font-bold leading-6 text-white ${ep.title.length > 80 ? "text-base" : "text-lg"}`}>{ep.title}</bdi>
+          <bdi dir="auto" title={ep.title} className={`mt-3 h-12 w-full shrink-0 line-clamp-2 font-sans font-bold leading-6 text-white ${ep.title.length > 80 ? "text-base" : "text-lg"}`}>{ep.title}</bdi>
           <p dir="auto" className="mt-2 h-10 w-full shrink-0 line-clamp-2 text-[13px] leading-5 text-gray-light">{ep.summary}</p>
           <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4 text-xs text-gray-mid">
             <span className="flex items-center gap-1"><Clock size={12} /> {ep.duration}</span>
@@ -109,7 +111,9 @@ export default function EpisodesGrid() {
     return () => { audio.removeEventListener("timeupdate", update); audio.removeEventListener("ended", ended); };
   }, [active]);
 
-  function playEpisode(ep: Episode) {
+  useOverlay(!!active, closeModal);
+
+  async function playEpisode(ep: Episode) {
     const audio = audioRef.current;
     if (!audio) return;
     if (ep.youtubeId) {
@@ -121,9 +125,8 @@ export default function EpisodesGrid() {
     if (playingId === ep.id) { audio.pause(); setPlayingId(null); return; }
     audio.src = ep.audio;
     audio.currentTime = 0;
-    void audio.play();
-    setPlayingId(ep.id);
     setActive(ep);
+    try { await audio.play(); if (!audio.paused) setPlayingId(ep.id); } catch { setPlayingId(null); }
   }
 
   function closeModal() {
@@ -169,17 +172,17 @@ export default function EpisodesGrid() {
         )}
       </div>
 
-      <AnimatePresence>
+      {createPortal(<AnimatePresence>
         {active && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[95] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" onClick={closeModal}>
-            <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} onClick={(e) => e.stopPropagation()} className="glass relative max-h-[90dvh] overflow-y-auto w-full max-w-3xl rounded-[28px] p-4 sm:p-6">
-              <button onClick={closeModal} aria-label="Close" className="absolute right-5 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/30 text-cream backdrop-blur-md"><X size={16} /></button>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-label={active.title} data-lenis-prevent className="fixed inset-0 z-[95] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" onClick={closeModal}>
+            <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} onClick={(e) => e.stopPropagation()} className="glass relative max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-3xl rounded-[28px] p-4 sm:p-6">
+              <button onClick={closeModal} autoFocus aria-label="Close" className="sticky ml-auto right-0 top-0 z-20 mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/30 text-cream backdrop-blur-md"><X size={16} /></button>
               {active.youtubeId ? (
                 <iframe key={active.youtubeId} src={`https://www.youtube.com/embed/${active.youtubeId}?autoplay=1`} title={active.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" className="aspect-video min-h-[200px] w-full rounded-[20px]" />
               ) : <img src={active.cover} alt="" className="aspect-[16/9] w-full rounded-[20px] object-cover" />}
               <div className="px-2 pb-2 pt-5 sm:px-4 sm:pt-6">
                 <span className="rounded-full border border-orange-hot/30 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-orange-hot">{active.topic}</span>
-                <bdi dir="auto" className="mt-4 block text-balance font-sans text-3xl font-extrabold text-white sm:text-4xl">{active.title}</bdi>
+                <bdi dir="auto" className="mt-4 block break-words text-balance font-sans text-2xl font-extrabold text-white sm:text-4xl">{active.title}</bdi>
                 <p dir="auto" className="mt-4 line-clamp-4 whitespace-pre-line text-sm leading-6 text-gray-light">{active.summary}</p>
                 {!active.youtubeId && <div className="mt-6 flex items-center gap-4">
                   <button onClick={() => playEpisode(active)} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-core to-orange-hot text-black" aria-label={playingId === active.id ? "Pause" : "Play"}>{playingId === active.id ? <Pause size={18} className="fill-black" /> : <Play size={18} className="fill-black" />}</button>
@@ -192,7 +195,7 @@ export default function EpisodesGrid() {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>, document.body)}
     </section>
   );
 }

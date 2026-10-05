@@ -33,7 +33,7 @@ export default function WhereToListen() {
           </div>
         ))}
 
-        <GlassCard className="mt-6 flex flex-col items-start justify-between gap-6 p-8 sm:flex-row sm:items-center">
+        <GlassCard className="mt-6 flex flex-col items-start justify-between gap-6 p-5 sm:p-8 lg:flex-row lg:items-center">
           <div>
             <p className="text-lg font-bold text-white">Not sure where to start?</p>
             <p className="mt-1 max-w-md text-sm text-gray-light">

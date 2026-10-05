@@ -12,6 +12,7 @@ export default function GlassCard({ children, className, tilt = false }: GlassCa
   const ref = useRef<HTMLDivElement>(null);
 
   function handleMove(e: MouseEvent<HTMLDivElement>) {
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
