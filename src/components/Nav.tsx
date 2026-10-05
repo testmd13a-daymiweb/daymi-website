@@ -101,7 +101,7 @@ export default function Nav() {
 
           <div
             ref={listenRef}
-            className="relative ml-auto shrink-0"
+            className="relative ml-auto shrink-0 md:ml-0"
             onPointerEnter={() => { clearTimeout(leaveTimer.current); resetListenIdle(); }}
             onPointerMove={resetListenIdle}
             onPointerDown={resetListenIdle}
