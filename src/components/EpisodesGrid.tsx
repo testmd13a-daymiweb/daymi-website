@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, X, Clock, Volume2 } from "lucide-react";
 import GlassCard from "./GlassCard";
-import MagneticButton from "./MagneticButton";
 import { episodes, type Episode } from "../data/episodes";
 
 function CoverArt({ ep, playing, onPlay }: { ep: Episode; playing: boolean; onPlay: () => void }) {
@@ -69,6 +68,40 @@ function EpisodeCard({ ep, playingId, onPlay, onOpen }: { ep: Episode; playingId
 }
 
 export default function EpisodesGrid() {
+  const [language, setLanguage] = useState<"persian" | "english">("persian");
+  const [videoEpisodes, setVideoEpisodes] = useState<Episode[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+  const [pageToken, setPageToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setLoadError(false);
+    const params = new URLSearchParams({ language });
+    if (pageToken) params.set("pageToken", pageToken);
+    fetch(`/api/episodes?${params}`, { signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) throw new Error("Unavailable");
+        const data = await response.json();
+        if (!Array.isArray(data.episodes)) throw new Error("Invalid response");
+        const incoming: Episode[] = data.episodes.map((video: Episode) => {
+          const match = video.duration.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+          const seconds = match ? Number(match[1] || 0) * 3600 + Number(match[2] || 0) * 60 + Number(match[3] || 0) : 0;
+          return { ...video, audio: "", topic: "YouTube", duration: seconds ? `${Math.floor(seconds / 60)} min ${seconds % 60} sec` : "YouTube" };
+        });
+        setVideoEpisodes(previous => pageToken
+          ? [...previous, ...incoming.filter(video => !previous.some(item => item.id === video.id))]
+          : incoming);
+        setNextPageToken(data.nextPageToken || null);
+      })
+      .catch(() => { if (!controller.signal.aborted) setLoadError(true); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [language, pageToken]);
+
+  const visibleEpisodes = videoEpisodes.length ? videoEpisodes : language === "persian" && loadError ? episodes : [];
   const [active, setActive] = useState<Episode | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
@@ -87,6 +120,12 @@ export default function EpisodesGrid() {
   function playEpisode(ep: Episode) {
     const audio = audioRef.current;
     if (!audio) return;
+    if (ep.youtubeId) {
+      audio.pause();
+      setPlayingId(null);
+      setActive(ep);
+      return;
+    }
     if (playingId === ep.id) { audio.pause(); setPlayingId(null); return; }
     audio.src = ep.audio;
     audio.currentTime = 0;
@@ -111,35 +150,52 @@ export default function EpisodesGrid() {
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-orange-hot">[ Episodes ]</p>
             <h2 className="mt-3 text-balance font-sans text-[clamp(32px,5vw,64px)] font-extrabold leading-[0.98] tracking-tight text-white">Real stories. Real voices.</h2>
           </div>
-          <p className="max-w-sm text-sm leading-6 text-gray-light">Daymi episodes, with the original artwork and Persian audio built directly into the experience.</p>
+          <p className="max-w-sm text-sm leading-6 text-gray-light">Daymi episodes, in Persian and English, with original artwork and playback built directly into the experience.</p>
         </div>
 
+        <div className="mb-6 flex gap-3" aria-label="Episode language">
+          {(["persian", "english"] as const).map(value => (
+            <button key={value} aria-pressed={language === value} onClick={() => {
+              if (language === value) return;
+              closeModal(); setLanguage(value); setVideoEpisodes([]); setPageToken(null); setNextPageToken(null);
+            }} className={`rounded-full border px-5 py-2.5 text-sm transition-colors ${language === value ? "border-orange-hot bg-orange-hot/15 text-cream" : "border-white/15 text-gray-light hover:text-cream"}`}>
+              {value === "persian" ? "Persian" : "English"}
+            </button>
+          ))}
+        </div>
+        {loading && <p role="status" className="mb-6 text-sm text-gray-light">Loading episodes…</p>}
+        {loadError && <p role="status" className="mb-6 text-sm text-gray-light">YouTube is temporarily unavailable.{language === "persian" && !videoEpisodes.length ? " You can still listen to the saved episodes below." : " Please try again later."}</p>}
+        {!loading && !loadError && !visibleEpisodes.length && <p className="mb-6 text-sm text-gray-light">No episodes available yet.</p>}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {episodes.map((ep) => <EpisodeCard key={ep.id} ep={ep} playingId={playingId} onPlay={playEpisode} onOpen={setActive} />)}
+          {visibleEpisodes.map((ep) => <EpisodeCard key={ep.id} ep={ep} playingId={playingId} onPlay={playEpisode} onOpen={setActive} />)}
         </div>
 
-        <div className="mt-10 flex justify-center">
-          <MagneticButton as="a" href="#" cursorLabel="Open" className="border border-white/15 text-cream hover:border-orange-hot/60">See all episodes</MagneticButton>
-        </div>
+        {nextPageToken && (
+          <div className="mt-10 flex justify-center">
+            <button disabled={loading} onClick={() => setPageToken(nextPageToken)} className="rounded-full border border-white/15 px-6 py-3 text-sm text-cream hover:border-orange-hot/60 disabled:opacity-50">Load more episodes</button>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
         {active && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[95] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" onClick={closeModal}>
-            <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} onClick={(e) => e.stopPropagation()} className="glass relative w-full max-w-3xl rounded-[28px] p-4 sm:p-6">
+            <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} onClick={(e) => e.stopPropagation()} className="glass relative max-h-[90dvh] overflow-y-auto w-full max-w-3xl rounded-[28px] p-4 sm:p-6">
               <button onClick={closeModal} aria-label="Close" className="absolute right-5 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/30 text-cream backdrop-blur-md"><X size={16} /></button>
-              <img src={active.cover} alt="" className="aspect-[16/9] w-full rounded-[20px] object-cover" />
+              {active.youtubeId ? (
+                <iframe key={active.youtubeId} src={`https://www.youtube.com/embed/${active.youtubeId}?autoplay=1`} title={active.title} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" className="aspect-video min-h-[200px] w-full rounded-[20px]" />
+              ) : <img src={active.cover} alt="" className="aspect-[16/9] w-full rounded-[20px] object-cover" />}
               <div className="px-2 pb-2 pt-5 sm:px-4 sm:pt-6">
                 <span className="rounded-full border border-orange-hot/30 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-orange-hot">{active.topic}</span>
                 <bdi dir="auto" className="mt-4 block text-balance font-sans text-3xl font-extrabold text-white sm:text-4xl">{active.title}</bdi>
-                <p className="mt-4 text-sm leading-6 text-gray-light">{active.summary}</p>
-                <div className="mt-6 flex items-center gap-4">
+                <p dir="auto" className="mt-4 line-clamp-4 whitespace-pre-line text-sm leading-6 text-gray-light">{active.summary}</p>
+                {!active.youtubeId && <div className="mt-6 flex items-center gap-4">
                   <button onClick={() => playEpisode(active)} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-core to-orange-hot text-black" aria-label={playingId === active.id ? "Pause" : "Play"}>{playingId === active.id ? <Pause size={18} className="fill-black" /> : <Play size={18} className="fill-black" />}</button>
                   <div className="flex-1">
                     <div className="h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-gradient-to-r from-orange-core to-orange-hot" style={{ width: `${progress * 100}%` }} /></div>
                     <div className="mt-2 flex justify-between font-mono text-[9px] uppercase tracking-wider text-gray-mid"><span>Persian audio</span><span>{active.duration}</span></div>
                   </div>
-                </div>
+                </div>}
               </div>
             </motion.div>
           </motion.div>

@@ -9,6 +9,8 @@ export type Episode = {
   cover: string;
   audio: string;
   featured?: boolean;
+  youtubeId?: string;
+  language?: "persian" | "english";
 };
 
 export const episodes: Episode[] = [
