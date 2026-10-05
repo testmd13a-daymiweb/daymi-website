@@ -3,6 +3,15 @@ const CHANNELS = {
   english: "@daymipodcast.English",
 };
 
+// These channels publish full episodes longer than three minutes.
+// The Data API does not expose a Shorts flag; exclude their short clips by duration.
+export function isFullEpisode(duration) {
+  const match = duration?.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+  if (!match) return false;
+  const seconds = Number(match[1] || 0) * 3600 + Number(match[2] || 0) * 60 + Number(match[3] || 0);
+  return seconds > 180;
+}
+
 function json(body, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 }
@@ -35,6 +44,7 @@ export default {
     // Canonical cache URLs avoid extra API calls from arbitrary query parameters.
     const cacheUrl = new URL("/api/episodes", url.origin);
     cacheUrl.searchParams.set("language", language);
+    cacheUrl.searchParams.set("filter", "full-episodes-v1");
     if (pageToken) cacheUrl.searchParams.set("pageToken", pageToken);
     const cacheKey = new Request(cacheUrl);
     const cached = await caches.default.match(cacheKey);
@@ -54,7 +64,7 @@ export default {
         part: "snippet,contentDetails,status", id: ids.join(","),
       }, env.YOUTUBE_API_KEY) : { items: [] };
       const episodes = (videos.items || [])
-        .filter(video => video.status?.privacyStatus === "public" && video.status?.embeddable)
+        .filter(video => video.status?.privacyStatus === "public" && video.status?.embeddable && isFullEpisode(video.contentDetails?.duration))
         .map(video => ({
           id: `youtube-${video.id}`,
           youtubeId: video.id,
