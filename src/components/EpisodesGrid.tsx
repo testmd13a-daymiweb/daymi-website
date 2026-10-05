@@ -21,9 +21,6 @@ function CoverArt({ ep, playing, onPlay }: { ep: Episode; playing: boolean; onPl
           <span className="inline-flex max-w-full rounded-full border border-orange-hot/40 bg-black/45 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-orange-hot backdrop-blur-md">
             {ep.topic}
           </span>
-          <div className="mt-2 max-w-[90%] text-base font-extrabold leading-[1.05] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] sm:text-lg">
-            {ep.title}
-          </div>
         </div>
         <button
           type="button"
@@ -36,7 +33,7 @@ function CoverArt({ ep, playing, onPlay }: { ep: Episode; playing: boolean; onPl
       </div>
 
       <div className="pointer-events-none absolute left-3.5 top-3.5 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md sm:left-4 sm:top-4">
-        <Volume2 size={10} /> Persian audio
+        <Volume2 size={10} /> {ep.language === "english" ? "English" : "Persian"} {ep.youtubeId ? "video" : "audio"}
       </div>
     </div>
   );
@@ -46,23 +43,23 @@ function EpisodeCard({ ep, playingId, onPlay, onOpen }: { ep: Episode; playingId
   const playing = playingId === ep.id;
   return (
     <GlassCard tilt className="group cursor-pointer p-3 sm:p-4">
-      <button className="block h-full w-full text-left" onClick={() => onOpen(ep)} data-cursor="Open" aria-label={`Open episode ${ep.title}`}>
+      <div className="h-full w-full text-left" onClick={() => onOpen(ep)} data-cursor="Open">
         <CoverArt ep={ep} playing={playing} onPlay={() => onPlay(ep)} />
-        <div className="flex min-h-[178px] flex-col pt-4 sm:min-h-[190px] sm:pt-5">
+        <button className="flex h-[218px] w-full flex-col pt-4 text-left sm:pt-5" aria-label={`Open episode ${ep.title}`}>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full border border-orange-hot/30 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-orange-hot">
               {ep.topic}
             </span>
             {ep.featured && <span className="rounded-full bg-orange-hot/20 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-orange-hot">Latest</span>}
           </div>
-          <bdi dir="auto" className="mt-3 block font-sans text-xl font-bold leading-tight text-white sm:text-2xl">{ep.title}</bdi>
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-light">{ep.summary}</p>
+          <bdi dir="auto" title={ep.title} className={`mt-3 block h-12 w-full shrink-0 line-clamp-2 font-sans font-bold leading-6 text-white ${ep.title.length > 80 ? "text-base" : "text-lg"}`}>{ep.title}</bdi>
+          <p dir="auto" className="mt-2 h-10 w-full shrink-0 line-clamp-2 text-[13px] leading-5 text-gray-light">{ep.summary}</p>
           <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4 text-xs text-gray-mid">
             <span className="flex items-center gap-1"><Clock size={12} /> {ep.duration}</span>
             <span className="font-mono uppercase tracking-[0.12em] text-orange-hot/80">{playing ? "Playing now" : "Play episode"}</span>
           </div>
-        </div>
-      </button>
+        </button>
+      </div>
     </GlassCard>
   );
 }
@@ -166,7 +163,7 @@ export default function EpisodesGrid() {
         {loading && <p role="status" className="mb-6 text-sm text-gray-light">Loading episodes…</p>}
         {loadError && <p role="status" className="mb-6 text-sm text-gray-light">YouTube is temporarily unavailable.{language === "persian" && !videoEpisodes.length ? " You can still listen to the saved episodes below." : " Please try again later."}</p>}
         {!loading && !loadError && !visibleEpisodes.length && <p className="mb-6 text-sm text-gray-light">No episodes available yet.</p>}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {visibleEpisodes.map((ep) => <EpisodeCard key={ep.id} ep={ep} playingId={playingId} onPlay={playEpisode} onOpen={setActive} />)}
         </div>
 
