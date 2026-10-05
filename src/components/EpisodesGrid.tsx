@@ -67,6 +67,7 @@ export default function EpisodesGrid() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const [pageToken, setPageToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -152,7 +153,7 @@ export default function EpisodesGrid() {
           {(["persian", "english"] as const).map(value => (
             <button key={value} aria-pressed={language === value} onClick={() => {
               if (language === value) return;
-              closeModal(); setLanguage(value); setVideoEpisodes([]); setPageToken(null); setNextPageToken(null);
+              closeModal(); setLanguage(value); setVideoEpisodes([]); setPageToken(null); setNextPageToken(null); setExpanded(false);
             }} className={`rounded-full border px-5 py-2.5 text-sm transition-colors ${language === value ? "border-orange-hot bg-orange-hot/15 text-cream" : "border-white/15 text-gray-light hover:text-cream"}`}>
               {value === "persian" ? "Persian" : "English"}
             </button>
@@ -161,11 +162,27 @@ export default function EpisodesGrid() {
         {loading && <p role="status" className="mb-6 text-sm text-gray-light">Loading episodes…</p>}
         {loadError && <p role="status" className="mb-6 text-sm text-gray-light">YouTube is temporarily unavailable.{language === "persian" && !videoEpisodes.length ? " You can still listen to the saved episodes below." : " Please try again later."}</p>}
         {!loading && !loadError && !visibleEpisodes.length && <p className="mb-6 text-sm text-gray-light">No episodes available yet.</p>}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {visibleEpisodes.map((ep) => <EpisodeCard key={ep.id} ep={ep} playingId={playingId} onPlay={playEpisode} onOpen={setActive} />)}
+        <div id="episode-cards" className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {(expanded ? visibleEpisodes : visibleEpisodes.slice(0, 6)).map((ep) => <EpisodeCard key={ep.id} ep={ep} playingId={playingId} onPlay={playEpisode} onOpen={setActive} />)}
         </div>
 
-        {nextPageToken && (
+        {(visibleEpisodes.length > 6 || (!expanded && nextPageToken)) && (
+          <div className="mt-8 flex justify-center">
+            <button
+              aria-expanded={expanded}
+              aria-controls="episode-cards"
+              onClick={() => {
+                setExpanded(value => !value);
+                if (!expanded && visibleEpisodes.length <= 6 && nextPageToken) setPageToken(nextPageToken);
+                if (expanded) document.getElementById("episodes")?.scrollIntoView({ behavior: "instant", block: "start" });
+              }}
+              className="rounded-full border border-orange-hot/40 px-7 py-3 text-sm font-semibold text-cream transition-colors hover:border-orange-hot hover:text-orange-hot"
+            >
+              {expanded ? "See less" : "See more"}
+            </button>
+          </div>
+        )}
+        {expanded && nextPageToken && (
           <div className="mt-10 flex justify-center">
             <button disabled={loading} onClick={() => setPageToken(nextPageToken)} className="rounded-full border border-white/15 px-6 py-3 text-sm text-cream hover:border-orange-hot/60 disabled:opacity-50">Load more episodes</button>
           </div>
