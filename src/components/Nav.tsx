@@ -66,13 +66,7 @@ export default function Nav() {
             paddingBottom: scrolled ? 8 : 10,
           }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          onPointerMove={(event) => {
-            if (event.pointerType === "touch") return;
-            const rect = event.currentTarget.getBoundingClientRect();
-            event.currentTarget.style.setProperty("--glass-x", `${event.clientX - rect.left}px`);
-          }}
-          onPointerLeave={(event) => event.currentTarget.style.setProperty("--glass-x", "50%")}
-          className="liquid-nav relative flex w-full max-w-3xl items-center justify-between gap-4 rounded-full"
+          className="glass nav-original relative flex w-full max-w-3xl items-center justify-between gap-4 rounded-full"
         >
           <a href="#top" className="flex items-center gap-2 pl-2" data-cursor="Home">
             <span className="font-sans text-lg font-extrabold tracking-tight text-white">DAYMI</span>
