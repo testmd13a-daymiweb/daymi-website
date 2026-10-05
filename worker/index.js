@@ -44,7 +44,7 @@ export default {
     // Canonical cache URLs avoid extra API calls from arbitrary query parameters.
     const cacheUrl = new URL("/api/episodes", url.origin);
     cacheUrl.searchParams.set("language", language);
-    cacheUrl.searchParams.set("filter", "full-episodes-v1");
+    cacheUrl.searchParams.set("filter", "full-episodes-v2-12h");
     if (pageToken) cacheUrl.searchParams.set("pageToken", pageToken);
     const cacheKey = new Request(cacheUrl);
     const cached = await caches.default.match(cacheKey);
@@ -76,7 +76,8 @@ export default {
           cover: (video.snippet.thumbnails.maxres || video.snippet.thumbnails.high || video.snippet.thumbnails.default)?.url,
         }));
       const response = Response.json({ episodes, nextPageToken: playlist.nextPageToken || null }, {
-        headers: { "Cache-Control": "public, max-age=600" },
+        // Cache on Cloudflare for 12 hours; browsers revalidate through the Worker.
+        headers: { "Cache-Control": "public, max-age=0, s-maxage=43200" },
       });
       ctx.waitUntil(caches.default.put(cacheKey, response.clone()));
       return response;
