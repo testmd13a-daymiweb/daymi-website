@@ -81,7 +81,7 @@ export default function ParticlePortrait() {
       const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
       sampleContext.drawImage(image, (width - image.naturalWidth * scale) / 2, 0, image.naturalWidth * scale, image.naturalHeight * scale);
       const pixels = sampleContext.getImageData(0, 0, sample.width, sample.height).data;
-      const gap = width < 400 ? 5 : 6;
+      const gap = width < 400 ? 3 : 3.5;
       points = [];
       for (let y = gap / 2; y < height - 2; y += gap) {
         for (let x = gap / 2; x < width - 2; x += gap) {
@@ -95,7 +95,7 @@ export default function ParticlePortrait() {
           red /= 9; green /= 9;
           if (red < 20) continue;
           const intensity = red / 255;
-          points.push({ homeX: x, homeY: y, x, y, vx: 0, vy: 0, radius: 0.65 + intensity * 1.25,
+          points.push({ homeX: x, homeY: y, x, y, vx: 0, vy: 0, radius: 0.45 + intensity * 0.95,
             color: `rgba(248,${Math.round(65 + green * 0.5)},${Math.round(5 + intensity * 18)},${0.3 + intensity * 0.7})` });
         }
       }
