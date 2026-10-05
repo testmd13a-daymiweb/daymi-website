@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Play, Pause, X, Clock, Volume2 } from "lucide-react";
 import GlassCard from "./GlassCard";
 import MagneticButton from "./MagneticButton";
-import MiniWaveform from "./MiniWaveform";
 import { episodes, type Episode } from "../data/episodes";
 
 function CoverArt({ ep, playing, onPlay }: { ep: Episode; playing: boolean; onPlay: () => void }) {
@@ -59,7 +58,7 @@ function EpisodeCard({ ep, playingId, onPlay, onOpen }: { ep: Episode; playingId
           </div>
           <bdi dir="auto" className="mt-3 block font-sans text-xl font-bold leading-tight text-white sm:text-2xl">{ep.title}</bdi>
           <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-light">{ep.summary}</p>
-          <div className="mt-auto flex items-center gap-4 pt-4 text-xs text-gray-mid">
+          <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-4 text-xs text-gray-mid">
             <span className="flex items-center gap-1"><Clock size={12} /> {ep.duration}</span>
             <span className="font-mono uppercase tracking-[0.12em] text-orange-hot/80">{playing ? "Playing now" : "Play episode"}</span>
           </div>
@@ -112,10 +111,10 @@ export default function EpisodesGrid() {
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-orange-hot">[ Episodes ]</p>
             <h2 className="mt-3 text-balance font-sans text-[clamp(32px,5vw,64px)] font-extrabold leading-[0.98] tracking-tight text-white">Real stories. Real voices.</h2>
           </div>
-          <p className="max-w-sm text-sm leading-6 text-gray-light">Four real Daymi episodes, with the original artwork and Persian audio built directly into the experience.</p>
+          <p className="max-w-sm text-sm leading-6 text-gray-light">Daymi episodes, with the original artwork and Persian audio built directly into the experience.</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {episodes.map((ep) => <EpisodeCard key={ep.id} ep={ep} playingId={playingId} onPlay={playEpisode} onOpen={setActive} />)}
         </div>
 

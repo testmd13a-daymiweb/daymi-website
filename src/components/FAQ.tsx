@@ -9,11 +9,11 @@ const FAQS = [
   },
   {
     q: "What language are the episodes in?",
-    a: "Persian. [FILL IN: confirm] The website itself is in English so anyone can browse, but press play and you'll hear Persian.",
+    a: "Daymi is available in Persian and English. Choose your language in the Listen menu or the Where to listen section.",
   },
   {
     q: "Where can I listen?",
-    a: "Spotify, YouTube and Castbox, plus a plain RSS feed for any podcast app you like. Links are in the \"Where to listen\" section above.",
+    a: "Spotify, YouTube and Castbox, with separate channels for Persian and English. Links are in the \"Where to listen\" section above.",
   },
   {
     q: "How often do new episodes come out?",

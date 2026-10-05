@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Menu, X, Play } from "lucide-react";
 import MagneticButton from "./MagneticButton";
-import { PLATFORMS } from "../data/platforms";
+import { LISTEN_GROUPS } from "../data/platforms";
 
 const LINKS = [
   { label: "Episodes", href: "#episodes" },
@@ -16,9 +16,40 @@ export default function Nav() {
   const [listenOpen, setListenOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const listenRef = useRef<HTMLDivElement>(null);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  function resetListenIdle() {
+    clearTimeout(idleTimer.current);
+    if (listenOpen) {
+      idleTimer.current = setTimeout(() => setListenOpen(false), 5000);
+    }
+  }
+
+  useEffect(() => {
+    if (!listenOpen) return;
+    idleTimer.current = setTimeout(() => setListenOpen(false), 5000);
+    const closeOnOutside = (event: PointerEvent) => {
+      if (!listenRef.current?.contains(event.target as Node)) setListenOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setListenOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      clearTimeout(idleTimer.current);
+      clearTimeout(leaveTimer.current);
+      document.removeEventListener("pointerdown", closeOnOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [listenOpen]);
+
   useEffect(() => {
     function onScroll() {
       setScrolled(window.scrollY > 40);
+      setListenOpen(false);
     }
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
@@ -58,7 +89,23 @@ export default function Nav() {
             ))}
           </ul>
 
-          <div className="relative">
+          <div
+            ref={listenRef}
+            className="relative"
+            onPointerEnter={() => { clearTimeout(leaveTimer.current); resetListenIdle(); }}
+            onPointerMove={resetListenIdle}
+            onPointerDown={resetListenIdle}
+            onFocusCapture={resetListenIdle}
+            onKeyDownCapture={resetListenIdle}
+            onBlurCapture={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setListenOpen(false);
+            }}
+            onPointerLeave={(event) => {
+              if (event.pointerType === "mouse") {
+                leaveTimer.current = setTimeout(() => setListenOpen(false), 350);
+              }
+            }}
+          >
             <MagneticButton
               className="bg-gradient-to-r from-orange-core to-orange-hot text-black shadow-[0_0_24px_rgba(248,127,35,0.45)]"
               cursorLabel="Listen"
@@ -76,20 +123,26 @@ export default function Nav() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.96 }}
                   transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                  className="glass absolute right-0 top-full mt-3 w-56 rounded-2xl p-2"
+                  className="glass absolute right-0 top-full mt-3 max-h-[calc(100dvh-110px)] w-64 overflow-y-auto rounded-2xl p-2"
                 >
-                  {PLATFORMS.map((p) => (
+                  {LISTEN_GROUPS.map((group) => (
+                    <div key={group.language} className="py-2 first:border-b first:border-white/10">
+                      <p className="px-3 pb-2 text-xs font-semibold text-cream">{group.label}</p>
+                      {group.platforms.map((p) => (
                     <a
                       key={p.name}
                       href={p.href}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => setListenOpen(false)}
                       data-cursor="Open"
                       className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-gray-light transition-colors hover:bg-white/5 hover:text-cream"
                     >
                       <p.icon size={16} className="text-orange-hot" />
                       {p.name}
                     </a>
+                      ))}
+                    </div>
                   ))}
                 </motion.div>
               )}
@@ -124,7 +177,7 @@ export default function Nav() {
                 <X size={20} />
               </button>
             </div>
-            <div className="flex flex-1 flex-col items-start justify-center gap-6 px-8">
+            <div className="flex flex-1 flex-col items-start justify-center gap-6 overflow-y-auto px-8 py-6">
               {LINKS.map((l, i) => (
                 <motion.a
                   key={l.href}
@@ -138,18 +191,25 @@ export default function Nav() {
                   {l.label}
                 </motion.a>
               ))}
-              <div className="mt-6 flex gap-4">
-                {PLATFORMS.map((p) => (
+              <div className="mt-6 flex flex-col gap-5">
+                {LISTEN_GROUPS.map((group) => (
+                  <div key={group.language}>
+                    <p className="mb-3 text-sm font-semibold text-cream">{group.label}</p>
+                    <div className="flex gap-4">
+                    {group.platforms.map((p) => (
                   <a
                     key={p.name}
                     href={p.href}
                     target="_blank"
                     rel="noreferrer"
                     className="flex h-12 w-12 items-center justify-center rounded-full border border-orange-hot/30 text-cream"
-                    aria-label={p.name}
+                    aria-label={`${p.name} — ${group.language}`}
                   >
                     <p.icon size={18} />
                   </a>
+                    ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

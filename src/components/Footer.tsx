@@ -1,4 +1,4 @@
-import { PLATFORMS } from "../data/platforms";
+import { LISTEN_GROUPS } from "../data/platforms";
 
 export default function Footer() {
   return (
@@ -12,21 +12,26 @@ export default function Footer() {
             </span>
           </div>
           <p className="mt-4 max-w-xs text-sm text-gray-light">
-            A Persian-language podcast about unexpected things, driven by a stubborn curiosity.
+            A podcast in Persian and English about unexpected things, driven by a stubborn curiosity.
           </p>
         </div>
 
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-orange-hot">Listen</p>
-          <ul className="mt-4 space-y-2">
-            {PLATFORMS.map((p) => (
+          {LISTEN_GROUPS.map((group) => (
+            <div key={group.language} className="mt-4">
+              <p className="text-sm font-semibold text-cream">{group.label}</p>
+              <ul className="mt-2 space-y-2">
+            {group.platforms.map((p) => (
               <li key={p.name}>
                 <a href={p.href} target="_blank" rel="noreferrer" className="text-sm text-gray-light hover:text-cream">
                   {p.name}
                 </a>
               </li>
             ))}
-          </ul>
+              </ul>
+            </div>
+          ))}
         </div>
 
         <div>
