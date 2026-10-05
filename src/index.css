@@ -219,3 +219,48 @@ textarea:focus-visible,
   .orb-speed-slider::-webkit-slider-thumb { width: 18px; height: 18px; }
   .orb-speed-slider::-moz-range-thumb { width: 18px; height: 18px; }
 }
+
+/* Liquid glass navigation: translucent body, rounded optical rim, moving reflection. */
+.liquid-nav {
+  --glass-x: 50%;
+  isolation: isolate;
+  background: rgba(18, 16, 15, 0.3);
+  border: 1px solid rgba(255, 239, 222, 0.3);
+  box-shadow:
+    0 12px 38px rgba(0, 0, 0, 0.24),
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.48),
+    inset 0 -1px 1px rgba(255, 206, 166, 0.17),
+    inset 1px 0 2px rgba(255, 255, 255, 0.22),
+    inset -1px 0 2px rgba(255, 255, 255, 0.2);
+}
+.liquid-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  pointer-events: none;
+  backdrop-filter: blur(24px) saturate(165%) brightness(1.12);
+  -webkit-backdrop-filter: blur(24px) saturate(165%) brightness(1.12);
+  background: linear-gradient(175deg, rgba(255,255,255,0.12), rgba(255,255,255,0.015) 44%, rgba(248,127,35,0.035));
+}
+.liquid-nav::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(180px 65px at var(--glass-x) 0%, rgba(255, 245, 229, 0.19), transparent 75%),
+    linear-gradient(180deg, rgba(255,255,255,0.07), transparent 38%, transparent 80%, rgba(255,213,177,0.06));
+}
+.liquid-nav > ul a { color: rgba(249,249,249,0.8); }
+.liquid-nav > ul a:hover { color: #fff; }
+@supports not (backdrop-filter: blur(1px)) {
+  .liquid-nav { background: rgba(24, 20, 18, 0.92); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .liquid-nav::after { background: linear-gradient(180deg, rgba(255,255,255,0.09), transparent 60%); }
+}
