@@ -1,3 +1,4 @@
+import ParticlePortrait from "./ParticlePortrait";
 import GlassCard from "./GlassCard";
 
 export default function About() {
@@ -5,9 +6,9 @@ export default function About() {
     <section id="about" className="relative z-10 bg-black px-5 py-24 sm:px-10">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <div className="relative aspect-[4/5] overflow-hidden rounded-[28px] border border-orange-hot/20 bg-black">
-          <img src="/images/host-orange-dots.png" alt="Daymi creator portrayed in glowing orange dots on black" loading="lazy" className="h-full w-full object-cover object-top" />
+          <ParticlePortrait />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-          <p className="absolute bottom-7 left-7 font-mono text-[10px] uppercase tracking-[0.25em] text-orange-hot">[ Behind the curiosity ]</p>
+          <p className="pointer-events-none absolute bottom-7 left-7 font-mono text-[10px] uppercase tracking-[0.25em] text-orange-hot">[ Behind the curiosity ]</p>
         </div>
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-orange-hot">[ About ]</p>
